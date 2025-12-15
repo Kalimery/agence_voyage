@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Destination - Agence de Voyage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+</head>
+<body>
+<header>
+    <h1>Nos Destinations</h1>
+</header>
+
+<main>
+    <div id="destinationContainer"></div>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const client = JSON.parse(localStorage.getItem("client"));
+    if (!client) {
+        alert("Veuillez vous connecter d'abord.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    const container = document.getElementById("destinationContainer");
+
+    try {
+        const destinations = await getDestinations();
+        destinations.forEach(d => {
+            container.innerHTML += `
+                <div class="card">
+                    <img src="${d.image_url}" alt="${d.name}">
+                    <h3>${d.name}</h3>
+                    <p>${d.description}</p>
+                    <p><strong>Location:</strong> ${d.location}</p>
+                    <p><strong>Price:</strong> ${d.price} MAD</p>
+                    <button onclick="selectDestination(${d.id_ville}, '${d.name}', ${d.price})">Choisir</button>
+                </div>
+            `;
+        });
+    } catch(err) {
+        container.innerHTML = "<p>Impossible de charger les destinations.</p>";
+        console.error(err);
+    }
+});
+
+function selectDestination(id, name, price) {
+    localStorage.setItem("selectedDestination", JSON.stringify({id, name, price}));
+    window.location.href = "reservation.html";
+}
+</script>
+</body>
+</html>

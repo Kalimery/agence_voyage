@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Agence de Voyage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+</head>
+<body>
+<h1>Login</h1>
+<form id="loginForm">
+    <input type="email" placeholder="Email" id="email" required>
+    <input type="password" placeholder="Password" id="password" required>
+    <button type="submit">Login</button>
+</form>
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    try {
+        const res = await loginClient(email.value, password.value);
+        alert("Welcome " + res.username);
+        localStorage.setItem("client", JSON.stringify(res));
+        window.location.href = "{{ url_for('home') }}";
+    } catch(err) {
+        alert("Login failed!");
+        console.error(err);
+    }
+});
+</script>
+</body>
+</html>

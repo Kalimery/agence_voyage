@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Agence de Voyage - Menu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+</head>
+<body>
+<header>
+    <h1>Bienvenue à Agence de Voyage</h1>
+    <div id="welcome"></div>
+    <button id="logoutBtn">Logout</button>
+</header>
+
+<nav>
+    <ul>
+        <li><a href="{{ url_for('destination_page') }}">Destination</a></li>
+        <li><a href="{{ url_for('reservation_page') }}">Reservation</a></li>
+        <li><a href="{{ url_for('avis_page') }}">Avis</a></li>
+        <li><a href="{{ url_for('contact_page') }}">Contact</a></li>
+    </ul>
+</nav>
+
+<main>
+    <p>Choisissez une option dans le menu pour commencer votre voyage !</p>
+</main>
+
+<script>
+const client = JSON.parse(localStorage.getItem("client"));
+const welcomeDiv = document.getElementById("welcome");
+const logoutBtn = document.getElementById("logoutBtn");
+
+if(client) {
+    welcomeDiv.innerHTML = `Connecté en tant que <strong>${client.username}</strong>`;
+} else {
+    welcomeDiv.innerHTML = `Vous n'êtes pas connecté. <a href="{{ url_for('login_page') }}">Login</a> | <a href="{{ url_for('register_page') }}">Register</a>`;
+}
+
+logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("client");
+    localStorage.removeItem("selectedDestination");
+    localStorage.removeItem("selectedHotel");
+    window.location.href = "{{ url_for('login_page') }}";
+});
+</script>
+</body>
+</html>

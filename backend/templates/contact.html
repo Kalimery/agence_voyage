@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact - Agence de Voyage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+</head>
+<body>
+<h1>Contact Us</h1>
+<form id="contactForm">
+    <input type="text" placeholder="Name" id="name" required>
+    <input type="email" placeholder="Email" id="email_contact" required>
+    <textarea placeholder="Message" id="message" required></textarea>
+    <button type="submit">Send Message</button>
+</form>
+
+<script>
+document.getElementById("contactForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    try {
+        await createMessage(
+            name.value,
+            email_contact.value,
+            message.value
+        );
+        alert("Message sent!");
+    } catch(err) {
+        alert("Failed to send message!");
+        console.error(err);
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Agence de Voyage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+</head>
+<body>
+<h1>Register</h1>
+<form id="registerForm">
+    <input type="text" placeholder="Username" id="username" required>
+    <input type="email" placeholder="Email" id="email_client" required>
+    <input type="password" placeholder="Password" id="password" required>
+    <button type="submit">Register</button>
+</form>
+
+<script>
+document.getElementById("registerForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    try {
+        const data = await registerClient(username.value, email_client.value, password.value);
+        alert("Client registered! ID: " + data.id_client);
+        window.location.href = "{{ url_for('login_page') }}";
+    } catch (err) {
+        alert("Registration failed!");
+        console.error(err);
+    }
+});
+</script>
+</body>
+</html>

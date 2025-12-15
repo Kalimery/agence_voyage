@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leave a Review - Agence de Voyage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+</head>
+<body>
+<h1>Leave a Review</h1>
+<form id="avisForm">
+    <input type="text" placeholder="Destination" id="destination" required>
+    <input type="number" placeholder="Rating (0-5)" id="rating" min="0" max="5" required>
+    <textarea placeholder="Comment" id="comment" required></textarea>
+    <input type="number" placeholder="Client ID" id="id_client" required>
+    <button type="submit">Submit Review</button>
+</form>
+
+<script>
+document.getElementById("avisForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    try {
+        await createAvis(
+            destination.value, 
+            parseInt(rating.value), 
+            comment.value, 
+            parseInt(id_client.value)
+        );
+        alert("Review submitted!");
+    } catch(err) {
+        alert("Failed to submit review!");
+        console.error(err);
+    }
+});
+</script>
+</body>
+</html>
