@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const client = JSON.parse(localStorage.getItem("client"));
     if (!client) {
         alert("Veuillez vous connecter d'abord.");
-        window.location.href = "login.html";
+        window.location.href = "/login";
         return;
     }
 
@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
         const destinations = await getDestinations();
+        container.innerHTML = ""; // Clear before appending
         destinations.forEach(d => {
             container.innerHTML += `
                 <div class="card">
@@ -35,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <h3>${d.name}</h3>
                     <p>${d.description}</p>
                     <p><strong>Location:</strong> ${d.location}</p>
-                    <p><strong>Price:</strong> ${d.price} MAD</p>
+                    <p><strong>Price per person:</strong> ${d.price} MAD</p>
                     <button onclick="selectDestination(${d.id_ville}, '${d.name}', ${d.price})">Choisir</button>
                 </div>
             `;
@@ -47,8 +48,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 function selectDestination(id, name, price) {
+    // Stocker destination complète dans localStorage
     localStorage.setItem("selectedDestination", JSON.stringify({id, name, price}));
-    window.location.href = "reservation.html";
+    window.location.href = "/reservation";
 }
 </script>
 </body>

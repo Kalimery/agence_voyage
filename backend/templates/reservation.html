@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Réservation - Agence de Voyage</title>
+    <title>Réservation</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
 </head>
@@ -12,56 +12,125 @@
 </header>
 
 <main>
-    <div id="selectedDestination"></div>
-    <h2>Hôtels disponibles</h2>
-    <div id="hotelsContainer"></div>
+    <form id="reservationForm">
+
+        <p><strong>Client :</strong> <span id="clientName"></span></p>
+        <p><strong>Destination :</strong> <span id="destName"></span></p>
+        <p><strong>Prix par personne :</strong> <span id="destPrice"></span> MAD</p>
+
+        <label>Date de départ</label>
+        <input type="date" id="dateDepart" required>
+
+        <label>Date de retour</label>
+        <input type="date" id="dateArrive" required>
+
+        <label>Nombre d’adultes</label>
+        <input type="number" id="nbrAdults" min="1" value="1" required>
+
+        <label>Nombre d’enfants</label>
+        <input type="number" id="nbrChildren" min="0" value="0" required>
+
+        <label>Type de séjour</label>
+        <select id="typeSejour" required>
+            <option value="vacances">Vacances</option>
+            <option value="affaires">Affaires</option>
+        </select>
+
+        <label>Hôtel</label>
+        <select id="hotelSelect">
+            <option value="">-- Aucun hôtel --</option>
+        </select>
+
+        <p><strong>Montant total :</strong> <span id="totalAmount">0</span> MAD</p>
+
+        <button type="submit">Confirmer la réservation</button>
+    </form>
 </main>
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
+
     const client = JSON.parse(localStorage.getItem("client"));
-    if (!client) {
-        alert("Veuillez vous connecter d'abord.");
-        window.location.href = "login.html";
+    if (!client || !client.id_client) {
+        alert("Veuillez vous connecter.");
+        window.location.href = "/login";
         return;
     }
+    document.getElementById("clientName").textContent = client.username;
 
     const destination = JSON.parse(localStorage.getItem("selectedDestination"));
     if (!destination) {
-        alert("Veuillez sélectionner une destination d'abord.");
-        window.location.href = "destination.html";
+        alert("Veuillez choisir une destination.");
+        window.location.href = "/destination";
         return;
     }
+    document.getElementById("destName").textContent = destination.name;
+    document.getElementById("destPrice").textContent = destination.price;
 
-    document.getElementById("selectedDestination").innerHTML = `
-        <h2>${destination.name} - ${destination.price} MAD</h2>
-    `;
+    const hotelSelect = document.getElementById("hotelSelect");
+    const hotels = await getHotels(destination.id);
+    hotels.forEach(h => {
+        const opt = document.createElement("option");
+        opt.value = h.id_hotel;
+        opt.textContent = `${h.nom_hotel} - ${h.prix_nuit} MAD/nuit`;
+        opt.dataset.price = h.prix_nuit;
+        hotelSelect.appendChild(opt);
+    });
 
-    try {
-        const hotels = await getHotels(destination.id);
-        const hotelsContainer = document.getElementById("hotelsContainer");
+    const nbrAdults = document.getElementById("nbrAdults");
+    const nbrChildren = document.getElementById("nbrChildren");
+    const totalAmount = document.getElementById("totalAmount");
 
-        hotels.forEach(h => {
-            hotelsContainer.innerHTML += `
-                <div class="card">
-                    <h3>${h.nom_hotel} (${h.categorie})</h3>
-                    <p>${h.adresse}</p>
-                    <p>Prix/nuit: ${h.prix_nuit} MAD</p>
-                    <button onclick="bookHotel(${h.id_hotel}, '${h.nom_hotel}', ${h.prix_nuit})">Réserver</button>
-                </div>
-            `;
-        });
-    } catch(err) {
-        console.error(err);
-        document.getElementById("hotelsContainer").innerHTML = "<p>Impossible de charger les hôtels.</p>";
+    function calculateTotal() {
+        const adults = parseInt(nbrAdults.value) || 0;
+        const children = parseInt(nbrChildren.value) || 0;
+        let total = (adults + children * 0.5) * parseFloat(destination.price);
+
+        if (hotelSelect.value) {
+            const hotelPrice = parseFloat(hotelSelect.selectedOptions[0].dataset.price);
+            total += hotelPrice;
+        }
+        totalAmount.textContent = total.toFixed(2);
     }
-});
 
-function bookHotel(id_hotel, nom_hotel, prix_nuit) {
-    localStorage.setItem("selectedHotel", JSON.stringify({id_hotel, nom_hotel, prix_nuit}));
-    alert(`Vous avez sélectionné l'hôtel ${nom_hotel}.`);
-    window.location.href = "payment.html"; // Or any page you use for final reservation/payment
-}
+    nbrAdults.oninput = calculateTotal;
+    nbrChildren.oninput = calculateTotal;
+    hotelSelect.onchange = calculateTotal;
+    calculateTotal();
+
+    const reservationForm = document.getElementById("reservationForm");
+    const dateDepart = document.getElementById("dateDepart");
+    const dateArrive = document.getElementById("dateArrive");
+    const typeSejour = document.getElementById("typeSejour");
+
+    reservationForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const data = {
+            nom_complet: client.username,
+            destination_name: destination.name,
+            date_depart: dateDepart.value,
+            date_arrive: dateArrive.value,
+            nbr_adults: parseInt(nbrAdults.value),
+            nbr_enfants: parseInt(nbrChildren.value),
+            type_sejour: typeSejour.value,
+            id_client: client.id_client,
+            id_destination: destination.id,
+            id_hotel: hotelSelect.value || null
+        };
+
+        try {
+            const res = await createReservation(data);
+            localStorage.setItem("reservation_id", res.id_reservation);
+            localStorage.setItem("reservation_montant", res.montant_total);
+            window.location.href = "/payment";
+        } catch (err) {
+            alert("Erreur lors de la réservation : " + (err.error || err.message));
+            console.error(err);
+        }
+    });
+});
 </script>
+
 </body>
 </html>

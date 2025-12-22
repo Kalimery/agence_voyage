@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Paiement</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+</head>
+<body>
+<header><h1>Paiement</h1></header>
+
+<main>
+    <form id="paymentForm">
+        <label>Montant:</label>
+        <input id="amount" type="number" readonly>
+
+        <label>Date du paiement:</label>
+        <input id="payment_date" type="date" required>
+
+        <label>Status:</label>
+        <select id="status" required>
+            <option value="paid">Payé</option>
+            <option value="pending">En attente</option>
+        </select>
+
+        <button type="submit">Payer</button>
+    </form>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const montant = localStorage.getItem("reservation_montant");
+    document.getElementById("amount").value = montant || 0;
+
+    document.getElementById("payment_date").value = new Date().toISOString().split('T')[0];
+});
+
+document.getElementById("paymentForm").addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const data = {
+        amount: parseFloat(document.getElementById("amount").value),
+        payment_date: document.getElementById("payment_date").value,
+        status: document.getElementById("status").value,
+        id_reservation: localStorage.getItem("reservation_id"),
+        id_admin: null
+    };
+
+    try {
+        await createPayment(data);
+        alert("Paiement effectué avec succès !");
+        window.location.href = "/";
+    } catch (err) {
+        alert(err.message);
+    }
+});
+</script>
+</body>
+</html>

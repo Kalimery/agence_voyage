@@ -18,18 +18,18 @@
 <script>
 document.getElementById("contactForm").addEventListener("submit", async e => {
     e.preventDefault();
+
+    const nameVal = document.getElementById("name").value;
+    const emailVal = document.getElementById("email_contact").value;
+    const messageVal = document.getElementById("message").value;
+
     try {
-        await createMessage(
-            name.value,
-            email_contact.value,
-            message.value
-        );
-        alert("Message sent!");
+        const res = await createMessage(nameVal, emailVal, messageVal);
+        alert(res.message || "Message sent!");
+        document.getElementById("contactForm").reset();
     } catch(err) {
         alert("Failed to send message!");
         console.error(err);
     }
 });
 </script>
-</body>
-</html>
