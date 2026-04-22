@@ -13,3 +13,5 @@ backend/venv/
 
 # Others
 instance/
+.DS_Store
+Library/
